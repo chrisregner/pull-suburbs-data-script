@@ -43,24 +43,28 @@ const output$ = fs.createWriteStream(`${OUTPUT_DIR}/output-${timestamp}.json`)
 output$.write('[')
 
 oboe(input$)
-  .node('{id lat lng}', ({ id, lat, lng }) => {
+  .node('{id lat lng}', ({ id, lat, lng, timezone }) => {
     requestsFn.push(
       () => requestSuburb({ id, lat, lng })
         .then(({ suburb, error }) => {
           const dataKey = error ? 'error' : 'suburb'
+          const city = timezoneToCity(timezone)
 
           if (isStart)
             isStart = false
           else
             output$.write(`,`)
 
-          output$.write(`
-    {
-      "id": ${id},
-      "lat": ${lat},
-      "lng": ${lng},
-      "${dataKey}": "${error || suburb}"
-    }`)
+          output$.write(
+            '\n' +
+            '  {\n' +
+            `    "id": ${id},\n` +
+            `    "lat": ${lat},\n` +
+            `    "lng": ${lng},\n` +
+            `    "city": "${city}",\n` +
+            `    "${dataKey}": "${error || suburb}"\n` +
+            '  }'
+          )
         })
         .catch(console.error)
     )
@@ -139,3 +143,5 @@ const sideFx = (fn) => (x) => {
 }
 
 const trimErrMsg = s => s.replace('Error: ', '')
+
+const timezoneToCity = s => s.replace('Australia/', '')
