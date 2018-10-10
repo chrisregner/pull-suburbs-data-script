@@ -34,6 +34,7 @@ if (!fs.existsSync(OUTPUT_DIR))
 
 const timestamp = +new Date()
 const requestsFn = []
+const suburbIds = []
 let isStart = true
 
 let errors$
@@ -47,8 +48,15 @@ oboe(input$)
     requestsFn.push(
       () => requestSuburb({ id, lat, lng })
         .then(({ suburb, error }) => {
-          const dataKey = error ? 'error' : 'suburb'
           const city = timezoneToCity(timezone)
+          const entryId = `${city}/${suburb}`
+
+          if (suburbIds.includes(entryId))
+            return
+
+          suburbIds.push(entryId)
+
+          const dataKey = error ? 'error' : 'suburb'
 
           if (isStart)
             isStart = false
@@ -58,7 +66,6 @@ oboe(input$)
           output$.write(
             '\n' +
             '  {\n' +
-            `    "id": ${id},\n` +
             `    "lat": ${lat},\n` +
             `    "lng": ${lng},\n` +
             `    "city": "${city}",\n` +
@@ -88,6 +95,7 @@ oboe(input$)
             errors$.end()
 
           console.timeEnd('fill-up-suburbs-data')
+          console.log(`Created ${suburbIds.length} entries`)
         })
     }
 
