@@ -7,10 +7,7 @@ console.time('pull-suburbs-data')
 /**
  * Constants
  */
-const GEOCODE_API = 'https://maps.googleapis.com/maps/api/geocode/json'
-const GEOCODE_KEY = process.env.API_KEY
-const INPUT_DIR = 'input'
-const OUTPUT_DIR = 'output'
+const { GEOCODE_API, GEOCODE_KEY, INPUT_DIR, OUTPUT_DIR } = require('./const')
 
 const REQUEST_COUNT_PER_BATCH = 200
 const REQUEST_BATCH_INTERVAL = 1000
